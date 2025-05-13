@@ -13,7 +13,7 @@ GENERATE = "generate"
 
 def generate_node(state):
     return generation_chain.invoke({
-        "messagees": state
+        "messages": state
     })
 
 def reflection_node(state):
@@ -28,15 +28,20 @@ graph.add_node(REFLECT, reflection_node)
 graph.set_entry_point(GENERATE)
 
 def should_continue(state):
-    if (len(state) > 4):
+    if len(state) > 4:
         return END
     return REFLECT
 
-graph.add_conditional_edges(GENERATE, should_continue)
+graph.add_conditional_edges(GENERATE, should_continue,
+                            {
+        "reflect": REFLECT,
+        "end": END
+    }
+    )
 
 graph.add_edge(REFLECT, GENERATE)
 
 app = graph.compile()
 
-# print(app.get_graph().draw_mermaid())
-print(app.get_graph().print_ascii())
+print(app.get_graph().draw_mermaid())
+app.get_graph().print_ascii()
